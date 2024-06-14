@@ -1,0 +1,11 @@
+
+
+${AnsiColor.BRIGHT_YELLOW} ████████╗ ██████╗ ████████╗██╗   ██╗███████╗
+${AnsiColor.BRIGHT_YELLOW} ╚══██╔══╝██╔═══██╗╚══██╔══╝██║   ██║██╔════╝
+${AnsiColor.BRIGHT_YELLOW}    ██║   ██║   ██║   ██║   ██║   ██║███████╗
+${AnsiColor.BRIGHT_YELLOW}    ██║   ██║   ██║   ██║   ╚██╗ ██╔╝╚════██║
+${AnsiColor.BRIGHT_YELLOW}    ██║   ╚██████╔╝   ██║    ╚████╔╝ ███████║
+${AnsiColor.BRIGHT_YELLOW}    ╚═╝    ╚═════╝    ╚═╝     ╚═══╝  ╚══════╝
+${AnsiColor.BRIGHT_MAGENTA} :: TOTVS  :: Running Spring Boot ${spring-boot.version} ::
+${AnsiColor.BRIGHT_MAGENTA} :: https://www.totvs.com ::${AnsiColor.DEFAULT}
+

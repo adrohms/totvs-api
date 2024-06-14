@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: totvs
+  profiles:
+    active:
+    group:
+      dev:
+        - dev
+        - api-docs
+  jmx:
+    enabled: false
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      # modify batch size as necessary
+      hibernate.jdbc.batch_size: 10
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.query.fail_on_pagination_over_collection_fetch: false
+      hibernate.query.in_clause_parameter_padding: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+  datasource:
+    url: jdbc:postgresql://localhost:5432/totvs
+    username: totvs
+    password:
+    hikari:
+      auto-commit: false
+  thymeleaf:
+    mode: HTML
+    enabled: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    sql-migration-prefix: V
+    schemas: 'public'
+logging:
+  level:
+    org.hibernate:
+      sql: debug
+      type.descriptor.sql: trace
+    org.springframework:
+      security: debug
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+totvs:
+  clientApp:
+    name: 'totvsApp'
+  # E-mail properties
+  mail:
+    base-url: http://127.0.0.1:8080 # URL to the application, used inside e-mails
+  cors:
+    allowed-origins: 'http://localhost:8100,https://localhost:8100,http://localhost:9000,https://localhost:9000,http://localhost:4200,https://localhost:4200'
+    # Enable CORS when running in GitHub Codespaces
+    # allowed-origin-patterns: 'https://*.githubpreview.dev'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count,X-${totvs.clientApp.name}-alert,X-${totvs.clientApp.name}-error,X-${totvs.clientApp.name}-params'
+    allow-credentials: true
+    max-age: 28800
+  # Spring Security specific configuration
+  security:
+    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+    remember-me:
+      # security key (this key should be unique for your application, and kept secret)
+      key: 0b32a651e6a65d5731e869dc136fb301b0a8c0e4
+    authentication:
+      jwt:
+        secret: 5584
+        base64-secret: NWM1MTU2NjdkMDU1OTY0MTg0NzVkNmE0NjRmMWVmMjVmM2IzYTM3YzVkNTFhNzM0ODI3Nzk1ZDMzMzAyNWQ4MTZkOTAyNjFiODUyZGI0MjYxZTEwNzE2YTA0ZmJlNjE2NGM0YTgzNDE3MDcxNTg3MTJmZGI4M2JlMGE2NDA1ODc=
+        token-validity-in-seconds: 86400 # Token is valid 24 hours
+        token-validity-in-seconds-for-remember-me: 2592000 # Remember me token is valid 30 days
