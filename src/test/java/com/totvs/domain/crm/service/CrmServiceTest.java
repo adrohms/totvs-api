@@ -47,7 +47,6 @@ public class CrmServiceTest {
 
     @Test
     public void testSaveClientWithUniquePhoneNumber() {
-
         PhoneRec phoneRec = new PhoneRec(null, "123456789", PhoneType.PERSONAL);
         PhoneRec phoneRec2 = new PhoneRec(null, "123456789", PhoneType.BUSINESS);
         AddressRec addressRec = new AddressRec(null, "Main St", "Downtown", "City", "State",
@@ -66,7 +65,7 @@ public class CrmServiceTest {
 
         ClientRec result = crmService.save(clientRec);
 
-        assertEquals(phoneRepository.findPhoneByNumber("123456789"), Collections.emptyList());
+        assertEquals(phoneRepository.findPhoneByNumber("123456789"), null);
         assertNotEquals(result, null);
         assertEquals(result.id(), 1L);
     }
@@ -84,5 +83,45 @@ public class CrmServiceTest {
                 .isInstanceOf(PhoneAlreadyUsedException.class);
     }
 
+    @Test
+    public void testUpdateClientWithUniquePhone() {
+
+        PhoneRec phoneRec = new PhoneRec(1L, "123456789", PhoneType.PERSONAL);
+        AddressRec addressRec = new AddressRec(1L, "Main St", "Downtown", "City", "State",
+                "Country", "12345", AddressType.BUSINESS, "10.0000", "20.0000");
+        PersonRec personRec = new PersonRec(1L, "John Doe", "12345678901", PersonType.NATURAL_PERSON,
+                "john.doe@example.com", Set.of(phoneRec), Set.of(addressRec));
+
+        ClientRec clientToUpdate = new ClientRec(1L, OriginType.OTHER, InterestType.OTHER, personRec);
+        Client clientToUpdateEntity = new Client();
+        Client clientUpdatedEntity = new Client();
+
+        when(clientMapper.toEntity(clientToUpdate)).thenReturn(clientToUpdateEntity);
+        when(crmRepository.save(clientToUpdateEntity)).thenReturn(clientUpdatedEntity);
+        when(clientMapper.toDto(clientUpdatedEntity)).thenReturn(clientToUpdate);
+
+        ClientRec result = crmService.update(clientToUpdate);
+
+        assertEquals(clientToUpdate, result);
+    }
+
+    @Test()
+    public void testUpdateClientWithDuplicatePhone() {
+        Phone existingPhone = new Phone();
+        existingPhone.setId(2L);
+        existingPhone.setNumber("123456789");
+
+        PhoneRec phoneRec = new PhoneRec(1L, "123456789", PhoneType.PERSONAL);
+        AddressRec addressRec = new AddressRec(1L, "Main St", "Downtown", "City", "State",
+                "Country", "12345", AddressType.BUSINESS, "10.0000", "20.0000");
+        PersonRec personRec = new PersonRec(1L, "John Doe", "12345678901", PersonType.NATURAL_PERSON,
+                "john.doe@example.com", Set.of(phoneRec), Set.of(addressRec));
+
+        ClientRec clientToUpdate = new ClientRec(1L, OriginType.OTHER, InterestType.OTHER, personRec);
+
+        when(phoneRepository.findPhoneByNumber("123456789")).thenReturn(existingPhone);
+        assertThatThrownBy(() -> crmService.update(clientToUpdate))
+                .isInstanceOf(PhoneAlreadyUsedException.class);
+    }
 
 }
