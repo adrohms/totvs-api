@@ -82,6 +82,7 @@ public class CrmResource {
         if (clientRec.id() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+
         if (!Objects.equals(id, clientRec.id())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }

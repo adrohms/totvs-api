@@ -1,10 +1,10 @@
 package com.totvs.domain.crm.service;
 
 import com.totvs.application.common.exception.PhoneAlreadyUsedException;
-import com.totvs.application.common.mapper.PersonMapper;
 import com.totvs.application.crm.dto.ClientRec;
 import com.totvs.application.crm.dto.ClientVMParameters;
 import com.totvs.application.crm.mapper.ClientMapper;
+import com.totvs.domain.common.model.Phone;
 import com.totvs.domain.common.repository.AddressRepository;
 import com.totvs.domain.common.repository.PhoneRepository;
 import com.totvs.domain.crm.model.Client;
@@ -33,24 +33,24 @@ public class CrmService implements CrmServiceImpl {
     private final CrmRepository crmRepository;
     private final PhoneRepository phoneRepository;
     private final AddressRepository addressRepository;
-    private final PersonMapper personMapper;
+    private final ClientMapper ClientMapper;
 
     public CrmService(ClientMapper clientMapper,
                       CrmRepository crmRepository,
-                      PhoneRepository phoneRepository, AddressRepository addressRepository, PersonMapper personMapper) {
+                      PhoneRepository phoneRepository, AddressRepository addressRepository, ClientMapper ClientMapper) {
         this.clientMapper = clientMapper;
         this.crmRepository = crmRepository;
         this.phoneRepository = phoneRepository;
         this.addressRepository = addressRepository;
-        this.personMapper = personMapper;
+        this.ClientMapper = ClientMapper;
     }
 
     @Override
     public ClientRec save(ClientRec clientRec) {
-        log.debug("Request to save Person : {}", clientRec);
+        log.debug("Request to save Client : {}", clientRec);
 
         clientRec.person().phones().stream().forEach(phone -> {
-            if(!this.phoneRepository.findPhoneByNumber(phone.number()).isEmpty()) {
+            if(this.phoneRepository.findPhoneByNumber(phone.number()) != null) {
                 throw new PhoneAlreadyUsedException();
             }
         });
@@ -62,7 +62,13 @@ public class CrmService implements CrmServiceImpl {
 
     @Override
     public ClientRec update(ClientRec clientRec) {
-        log.debug("Request to update Person : {}", clientRec);
+        log.debug("Request to update Client : {}", clientRec);
+        clientRec.person().phones().stream().forEach(phone -> {
+            Phone checkedPhone = this.phoneRepository.findPhoneByNumber(phone.number());
+            if(checkedPhone != null && checkedPhone.getId() != phone.id()) {
+                throw new PhoneAlreadyUsedException();
+            }
+        });
         Client client = clientMapper.toEntity(clientRec);
         client = crmRepository.save(client);
         return clientMapper.toDto(client);
@@ -70,7 +76,7 @@ public class CrmService implements CrmServiceImpl {
 
     @Override
     public Optional<ClientRec> partialUpdate(ClientRec clientRec) {
-        log.debug("Request to partially update Person : {}", clientRec);
+        log.debug("Request to partially update Client : {}", clientRec);
 
         return crmRepository
                 .findById(clientRec.id())
@@ -102,13 +108,13 @@ public class CrmService implements CrmServiceImpl {
     @Override
     @Transactional(readOnly = true)
     public Optional<ClientRec> findOne(Long id) {
-        log.debug("Request to get Person : {}", id);
+        log.debug("Request to get Client : {}", id);
         return crmRepository.findById(id).map(clientMapper::toDto);
     }
 
     @Override
     public void delete(Long id) {
-        log.debug("Request to delete Person : {}", id);
+        log.debug("Request to delete Client : {}", id);
         crmRepository.deleteById(id);
     }
 

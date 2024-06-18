@@ -59,7 +59,7 @@ public class CrmServiceTest {
         Client clientEntity = new Client();
         ClientRec clientRecSaved = new ClientRec(1L, OriginType.OTHER, InterestType.OTHER, personRec);
 
-        when(phoneRepository.findPhoneByNumber("123456789")).thenReturn(Collections.emptyList());
+        when(phoneRepository.findPhoneByNumber("123456789")).thenReturn(null);
         when(clientMapper.toEntity(clientRec)).thenReturn(clientEntity);
         when(crmRepository.save(clientEntity)).thenReturn(clientEntity);
         when(clientMapper.toDto(clientEntity)).thenReturn(clientRecSaved);
@@ -71,17 +71,18 @@ public class CrmServiceTest {
         assertEquals(result.id(), 1L);
     }
 
-    @Test
+    @Test()
     public void testSaveClientWithDuplicatePhoneNumber() {
         PhoneRec phoneRec = new PhoneRec(null, "123456789", PhoneType.PERSONAL);
         PersonRec personRec = new PersonRec(null, "John Doe", "12345678901",
                 PersonType.NATURAL_PERSON, "john.doe@example.com", Set.of(phoneRec), Collections.emptySet());
         ClientRec clientRec = new ClientRec(null, OriginType.OTHER, InterestType.OTHER, personRec);
 
-        when(phoneRepository.findPhoneByNumber("123456789")).thenReturn(List.of(new Phone()));
+        when(phoneRepository.findPhoneByNumber("123456789")).thenReturn(new Phone());
 
         assertThatThrownBy(() -> crmService.save(clientRec))
                 .isInstanceOf(PhoneAlreadyUsedException.class);
     }
+
 
 }
