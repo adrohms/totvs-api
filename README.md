@@ -23,7 +23,7 @@ npm start
 ### Para o login na aplicação:
 -   Usuário padrão:
 ```
-    Login: user@tovs.com
+    Login: user@totvs.com
     Password: user1234
 ```
 
